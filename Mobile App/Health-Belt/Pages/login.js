@@ -1,12 +1,51 @@
 import * as React from 'react';
 import { View, Text, TextInput, ImageBackground, StyleSheet, StatusBar, Image, Dimensions, TouchableNativeFeedback } from 'react-native';
+import bcrypt from 'react-native-bcrypt';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 const windowHeight = Dimensions.get('window').height;
 const windowWidth = Dimensions.get('window').width;
+var salt = bcrypt.genSaltSync(10);
 
 function login({navigation}) {
 
     const [userName, onChangeUserName] = React.useState('');
     const [password, onChangePassword] = React.useState('');
+    const [success, onChangeSuccess] = React.useState(true);
+
+    /*
+
+        get:
+            url/login?uname=""
+
+            {
+                pass: hash-password,
+            }
+
+        if success:
+        
+        get:
+            url/getToken?uname=""
+
+            {
+                token: token,
+            }
+    */
+
+    async function login() {
+        /*let response = await fetch('url/login?uname='+userName); 
+        let json = await response.json;
+        let success = json.pass ? bcrypt.compareSync(password,json.pass) : false;
+        onChangeSuccess(success);
+        if(success) {
+            await AsyncStorage.setItem('@UNAME', userName);
+            response = await fetch('url/getToken')
+            json = await response.json;
+            await AsyncStorage.setItem('@TOKEN', json.token);
+            navigation.navigate('mainApp');
+        }*/
+        navigation.navigate('mainApp')
+    }
 
     return (
       <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
@@ -25,8 +64,11 @@ function login({navigation}) {
                     placeholder={"Password"}
                     secureTextEntry={true}
                 />
+                {
+                    success ? null : <Text style={styles.error}>User-Name and Passwords doesn't match</Text>
+                }
                 <View>
-                    <TouchableNativeFeedback onPress={() => navigation.navigate('register')}>
+                    <TouchableNativeFeedback onPress={() => login()}>
                         <Text style={styles.mainButton}>Log In</Text>
                     </TouchableNativeFeedback>
                 </View>
@@ -86,10 +128,18 @@ const styles = StyleSheet.create({
         paddingLeft: 10,
         borderRadius: 10,
         color: "rgba(255,236,221,0.9)",
+        marginBottom: 10,
+    },
+
+    error: {
+        paddingTop:10,
+        color: "red",
+        fontSize: 10,
+        textAlign: 'center',
     },
 
     mainButton: {
-        marginTop: 20,
+        marginTop: 10,
         marginBottom:0,
         alignSelf: 'center',
         backgroundColor: "rgb(217,185,218)",

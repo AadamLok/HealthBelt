@@ -11,12 +11,12 @@ import register from "./Pages/register";
 import mainApp from "./Pages/mainApp";
 
 const Stack = createStackNavigator();
-const UID = null;
+const UNAME = null;
 const TOKEN = null;
 
 async function getData() {
   try{
-    await AsyncStorage.getItem("@UID").then((val) => {UID = val;});
+    await AsyncStorage.getItem("@UID").then((val) => {UNAME = val;});
     await AsyncStorage.getItem("@TOKEN").then((val) => {TOKEN = val;});
   } catch(e) {
     UID = null;
