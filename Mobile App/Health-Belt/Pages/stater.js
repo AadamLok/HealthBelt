@@ -1,7 +1,5 @@
 import * as React from 'react';
 import { View, Text, ImageBackground, StyleSheet, StatusBar, Image, Dimensions, TouchableNativeFeedback } from 'react-native';
-import register from './register';
-
 const windowHeight = Dimensions.get('window').height;
 const windowWidth = Dimensions.get('window').width;
 
