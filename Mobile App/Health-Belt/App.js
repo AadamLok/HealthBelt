@@ -40,6 +40,7 @@ export default function App() {
         <Stack.Screen name="stater" component={stater} />
         <Stack.Screen name="login" component={login} />
         <Stack.Screen name="register" component={register} />
+        <Stack.Screen name="mainApp" component={mainApp} />
       </Stack.Navigator>
     </NavigationContainer>
   );
