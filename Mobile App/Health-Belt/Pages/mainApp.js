@@ -1,11 +1,17 @@
 import * as React from 'react';
-import { View, Text } from 'react-native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+
+import home from './home';
+import profile from './profile';
+
+const Tab = createBottomTabNavigator();
 
 function mainApp() {
     return (
-      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-        <Text>Main App</Text>
-      </View>
+        <Tab.Navigator>
+            <Tab.Screen name="Home" component={home} />
+            <Tab.Screen name="Profile" component={profile} />
+        </Tab.Navigator>
     );
 }
 
