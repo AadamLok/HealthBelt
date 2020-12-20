@@ -44,9 +44,9 @@ function register({navigation}) {
             response = await fetch('url/getToken')
             json = await response.json;
             await AsyncStorage.setItem('@TOKEN', json.token);
-            navigation.navigate('mainApp');
+            navigation.navigate('mainApp',{screen: 'profile'});
         }*/
-        navigation.navigate('login')
+        navigation.navigate('mainApp',{screen: 'Profile'})
     }
 
     return (

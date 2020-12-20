@@ -42,9 +42,9 @@ function login({navigation}) {
             response = await fetch('url/getToken')
             json = await response.json;
             await AsyncStorage.setItem('@TOKEN', json.token);
-            navigation.navigate('mainApp');
+            navigation.navigate('mainApp',{screen: 'Home'});
         }*/
-        navigation.navigate('mainApp')
+        navigation.navigate('mainApp',{screen: 'Home'});
     }
 
     return (
