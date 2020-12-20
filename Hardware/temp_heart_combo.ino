@@ -5,6 +5,7 @@
 dht tempSensor;
 int reading = 0;
 int reading_final;
+int bpm = 0;
 /**
 Temperature Sensor and Heart Rate Sensor Code
 by Anvitha Ramachandran
@@ -19,8 +20,9 @@ void setup()
 
 void loop()
 {
+  int prev = 0; 
   //heart rate
-for (int j = 0; j < 60; i++)
+for (int j = 0; j < 60; j++)
 {
       for(int i=0;i<10;i++)     
       {
@@ -29,8 +31,12 @@ for (int j = 0; j < 60; i++)
       }
       reading_final = (reading)/10;           // Average junk reading calulated.
       delay(100);
-      Serial.println(reading_final/10);   
+      Serial.println(reading_final/10);
+      prev = reading_final/10;   
+      if (prev < 0 && reading_final > 0 ||  prev > 0 && reading_final < 0) bpm+=1; // updating bpm according to shift in peaks
 }
+
+  Serial.println("Your heart rate is " + String(bpm));
 
   delay(500);
 
@@ -59,12 +65,12 @@ for (int j = 0; j < 60; i++)
   bodyTemp/=5.0;
   float delta = bodyTemp-roomTemp;
   float temp = float(map(delta, 1, 6, 986, 1060))/10.0 + 1.0;
-  Serial.println(String(temp) " degrees Fahrenheit");
+  Serial.println(String(temp) + " degrees Fahrenheit");
   temp -=32.0;
   temp *=5.0;
   temp/= 9.0;
   //converts to celsius so that we have options!
-   Serial.println(String(temp) " degrees Celsius");
+   Serial.println(String(temp)+ " degrees Celsius");
    // doesn't classify values outside of range of human temperature range
   String output = "";
   
