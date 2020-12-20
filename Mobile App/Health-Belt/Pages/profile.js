@@ -2,6 +2,7 @@ import * as React from 'react';
 import { View, Text, StyleSheet, ImageBackground, FlatList, Dimensions, StatusBar, TextInput, TouchableNativeFeedback} from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 
+
 const windowWidth = Dimensions.get('window').width;
 
 function profile({navigate}) {
@@ -18,7 +19,7 @@ function profile({navigate}) {
             email:'alokhandwala@umass.edu'
         },
     ]
-
+    
     function logout() {
 
     }
@@ -75,6 +76,7 @@ function profile({navigate}) {
                                     onChangeText={text => onChangeEmail(text)} 
                                     value={email}
                                     placeholder={"Emergency Contact"} 
+
                                 />
                             </View>
                             <View style={{flex:1}}>
