@@ -3,9 +3,9 @@ from flask import Flask, request, jsonify
 from flask_mysqldb import MySQL
 import random
 import string
+from messaging.py import email_message
 
 '''
-cur.execute("CREATE TABLE BreathData (username VARCHAR(20), breath smallint)")
 cur.execute("CREATE TABLE TempData (username VARCHAR(20), temperature smallint)")
 cur.execute("CREATE TABLE user_USERNAME (dateAndtime VARCHAR(20), sensor text)")
 
@@ -37,7 +37,6 @@ def mainRoute():
 {
     "HID": "",
     "heart": [],
-    "breath": num,
     "temp": num
 }
 '''
@@ -51,8 +50,8 @@ def upload():
     if len(rv) == 0:
         return "Hardware not connected"
     else:
-        cur.execute('INSERT INTO user_'+rv[0]["username"]+" (sensor) VALUES ('"+data["heart"]+"')")
-        cur.execute("UPDATE BreathData SET breath="+data['breath']+" WHERE username='"+rv[0]["username"]+"'")
+        cur.execute('INSERT INTO user_' +
+                    rv[0]["username"]+" (sensor) VALUES ('"+data["heart"]+"')")
         cur.execute("UPDATE TempData SET temperature="+data['temp']+" WHERE username='"+rv[0]["username"]+"'")
         mysql.connection.commit()
     cur.close()
@@ -81,8 +80,12 @@ def emergency():
             return "No Emergency Contacts"
         emails = rv[0]["email"].split()
         
-        #TODO
-        for i in range emails
+        ##Reason for emails: We decided to use the email addresses of the users as opposed to SMS messaging is because SMS is a paid service.
+        ##In an ideal case, we would use a paid service such that we would simply pass in the phone number of the person, so the SMS API can track the user's service provider
+        for email in range emails:
+            email_message("EMERGENCY", "You are an emergency contact of '" +
+                          username + "' for COVID-19 or a heart attack", email)
+
 
 '''
 {
@@ -103,8 +106,8 @@ def register():
         return jsonify(error=True,token="")
     else:
         cur.execute("INSERT INTO login VALUES ('"+data["HID"]+"','"+username+"','"+data["hash"]+"','"+data["email"]+"')")
-        cur.execute("CREATE TABLE user_"+username+" (dateAndtime TIMESTAMP DEFAULT CURRENT_TIMESTAMP, sensor TEXT)")
-        cur.execute("INSERT INTO BreathData VALUES ('"+username+"',1)")
+        cur.execute("CREATE TABLE user_"+username +
+                    " (dateAndtime TIMESTAMP DEFAULT CURRENT_TIMESTAMP, sensor TEXT)")
         cur.execute("INSERT INTO TempData VALUES ('"+username+"',32)")
         letters = string.ascii_letters
         _token = ''.join(random.choice(letters) for i in range(10))
@@ -222,10 +225,7 @@ def getData():
     curr.execute("SELECT temperature FROM TempData WHERE username = '"+username+"'")
     rv = curr.fetchall() 
     _temp = rv 
-    curr.execute("SELECT breath FROM BreathData WHERE username ='"+username+"'")
-    rv = curr.fetchall()
-    _breath = rv 
-    return jsonify(heart=_heart, temp=_temp, breath = _breath)
+    return jsonify(heart=_heart, temp=_temp)
     
 if __name__ == "__main__":
     app.run(debug=True)
