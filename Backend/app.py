@@ -1,38 +1,207 @@
 import os
-from flask import Flask
+from flask import Flask, request, jsonify
 from flask_mysqldb import MySQL
+import random
+import string
+
+'''
+cur.execute("CREATE TABLE BreathData (username VARCHAR(20), breath smallint)")
+cur.execute("CREATE TABLE TempData (username VARCHAR(20), temperature smallint)")
+cur.execute("CREATE TABLE user_USERNAME (dateAndtime VARCHAR(20), sensor text)")
+
+cur.execute("CREATE TABLE login (HardWareID VARCHAR(10), username VARCHAR(20), hash VARCHAR(50), email VARCHAR(50))")
+cur.execute("CREATE TABLE Emergency (username VARCHAR(20), email text)")
+cur.execute("CREATE TABLE Token (username VARCHAR(20), token VARCHAR(10))")
+'''
 
 app = Flask(__name__)
 
+app.config['MYSQL_HOST'] = '35.236.222.221'
+app.config['MYSQL_USER'] = 'BackEnd'
+app.config['MYSQL_PASSWORD'] = 'HealthBelt!!'
+app.config['MYSQL_DB'] = 'user_info'
+app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
+
+mysql = MySQL(app)
 
 
 @app.route('/')
-def hello():
-    return 'Hello, World!'
+def mainRoute():
+    cur = mysql.connection.cursor()
+    cur.close()
+    return "Health Belt backend is working."
 
 
-def create_app(test_config=None):
-    # create and configure the app
-    app = Flask(__name__, instance_relative_config=True)
-    app.config.from_mapping(
-        SECRET_KEY='dev',
-        DATABASE=os.path.join(app.instance_path, 'flaskr.sqlite'),
-    )
 
-    if test_config is None:
-        # load the instance config, if it exists, when not testing
-        app.config.from_pyfile('config.py', silent=True)
+'''
+{
+    "HID": "",
+    "heart": [],
+    "breath": num,
+    "temp": num
+}
+'''
+@app.route('/upload', methods=['POST'])
+def upload():
+    data = request.get_json()
+    hid = data["HID"]
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT HardWareID, username FROM login WHERE HardWareID = '"+hid+"'")
+    rv = cur.fetchall()
+    if len(rv) == 0:
+        return "Hardware not connected"
     else:
-        # load the test config if passed in
-        app.config.from_mapping(test_config)
+        cur.execute('INSERT INTO user_'+rv[0]["username"]+" (sensor) VALUES ('"+data["heart"]+"')")
+        cur.execute("UPDATE BreathData SET breath="+data['breath']+" WHERE username='"+rv[0]["username"]+"'")
+        cur.execute("UPDATE TempData SET temperature="+data['temp']+" WHERE username='"+rv[0]["username"]+"'")
+        mysql.connection.commit()
+    cur.close()
+    return "Done!"
 
-    # ensure the instance folder exists
-    try:
-        os.makedirs(app.instance_path)
-    except OSError:
-        pass
+'''
+{
+    "HID": "",
+    "reason": "", covid/heart-attack
+}
+'''
+@app.route('/emergency', methods=['POST'])
+def emergency():
+    data = request.get_json()
+    hid = data["HID"]
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT username FROM login WHERE HardWareID='"+hid+"'")
+    rv = cur.fetchall()
+    if len(rv) == 0:
+        return "Hardware not connected"
+    else:
+        username = rv[0]["username"]
+        cur.execute("SELECT email FROM emergency WHERE username = '"+username+"'")
+        rv = cur.fetchall()
+        if len(rv) == 0:
+            return "No Emergency Contacts"
+        emails = rv[0]["email"].split()
+        
+        #TODO
 
-    return app
+'''
+{
+    "HID":"",
+    "username":"",
+    "email": "",
+    "hash": ""
+}
+'''
+@app.route('/register', methods=['GET'])
+def register():
+    data = request.get_json()
+    username = data["username"]
+    cur = mysql.connection.cursor()
+    cur.execute('SELECT username FROM login WHERE username = "'+username+'"')
+    rv = cur.fetchall()
+    if len(rv) != 0:
+        return jsonify(error=True,token="")
+    else:
+        cur.execute("INSERT INTO login VALUES ('"+data["HID"]+"','"+username+"','"+data["hash"]+"','"+data["email"]+"')")
+        cur.execute("CREATE TABLE user_"+username+" (dateAndtime TIMESTAMP DEFAULT CURRENT_TIMESTAMP, sensor TEXT)")
+        cur.execute("INSERT INTO BreathData VALUES ('"+username+"',1)")
+        cur.execute("INSERT INTO TempData VALUES ('"+username+"',32)")
+        letters = string.ascii_letters
+        _token = ''.join(random.choice(letters) for i in range(10))
+        cur.execute("INSERT INTO Token VALUES ('"+username+"','"+token+"')")
+        mysql.connection.commit()
+    cur.close()
+    return jsonify(error=False,token=_token)
+
+'''
+{
+    "username" : ""
+}
+'''
+@app.route('/login', methods=['GET'])
+def login():
+    data = request.get_json()
+    username = data["username"]
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT hash FROM login WHERE username='"+username+"'")
+    rv = cur.fetchall()
+    if len(rv) == 0:
+        return jsonify(error=True,hash="")
+    _hash = rv[0]["hash"]
+    cur.close()
+    return jsonify(hash=_hash)
+
+'''
+{
+    "username" : ""
+}
+'''
+@app.route('/getToken', methods=['GET'])
+def login():
+    data = request.get_json()
+    username = data["username"]
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT hash FROM login WHERE username='"+username+"'")
+    rv = cur.fetchall()
+    if len(rv) == 0:
+        return jsonify(error=True,token="")
+    cur.execute("SELECT token FROM Token WHERE username='"+username+"'")
+    rv = cur.fetchall()
+    _token = rv[0]["token"]
+    cur.close()
+    return jsonify(token=_token)
+
+'''
+{
+    "username":"",
+    "token":"",
+    "contact":"",
+}
+'''
+@app.route('/newContact', method=['POST'])
+def newContact():
+    data = request.get_json()
+    username = data["username"]
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT token FROM Token WHERE username='"+username+"'")
+    rv=cur.fetchall()
+    if len(rv) == 0:
+        return "Username not registered"
+    if rv[0]["token"] != data["token"]:
+        return "Unsuccessful"
+    cur.execute("UPDATE emergency SET email='"+data["contact"]+"'")
+    mysql.connection.commit()
+    cur.close()
+    return "Successful!"
+
+
+'''
+{
+    "username":"",
+    "token":"",
+    "email":""
+}
+'''
+@app.route('/changeEmail', method=['POST'])
+def newEmail():
+    data = request.get_json()
+    username = data["username"]
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT token FROM Token WHERE username='"+username+"'")
+    rv=cur.fetchall()
+    if len(rv) == 0:
+        return "Username not registered"
+    if rv[0]["token"] != data["token"]:
+        return "Unsuccessful"
+    cur.execute("UPDATE login SET email='"+data["email"]+"' WHERE username='"+username+"'")
+    mysql.connection.commit()
+    cur.close()
+    return "Successful!"
+
+'''
+{
+    ""
+}
+'''
 
 if __name__ == "__main__":
-    app.run()
+    app.run(debug=True)
