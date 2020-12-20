@@ -82,6 +82,7 @@ def emergency():
         emails = rv[0]["email"].split()
         
         #TODO
+        for i in range emails
 
 '''
 {
@@ -199,9 +200,32 @@ def newEmail():
 
 '''
 {
-    ""
+    
+    "username":"", 
+    "token":"" , 
 }
 '''
-
+@app.route('/getData'method=['GET'])
+def getData():
+    data = request.get_json()
+    username = data["username"]
+    cur = mysql.connection.cursor()
+    cur.execute("SELECT token FROM Token WHERE username='"+username+"'")
+    rv=cur.fetchall()
+    if len(rv) == 0:
+        return "Username not registered"
+    if rv[0]["token"] != data["token"]:
+        return "Unsuccessful"
+    cur.execute("SELECT * FROM user_"+username+ "ORDER BY dateAndtime DESC LIMIT 10")
+    rv = curr.fetchall() 
+    _heart = rv 
+    curr.execute("SELECT temperature FROM TempData WHERE username = '"+username+"'")
+    rv = curr.fetchall() 
+    _temp = rv 
+    curr.execute("SELECT breath FROM BreathData WHERE username ='"+username+"'")
+    rv = curr.fetchall()
+    _breath = rv 
+    return jsonify(heart=_heart, temp=_temp, breath = _breath)
+    
 if __name__ == "__main__":
     app.run(debug=True)
