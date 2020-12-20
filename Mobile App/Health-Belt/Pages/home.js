@@ -8,6 +8,8 @@ const height = Dimensions.get("window").height;
 
 function home({navigate}) {
 
+    const [warning, onChangeWarning] = React.useState(false);
+
     const data = {
         datasets: [
           {
@@ -59,15 +61,17 @@ function home({navigate}) {
                     <Text style={styles.title}>Health Belt</Text>
                 </View>
                 <View style={styles.canvas}>
-                    <View style={styles.warning}>
-                        <View style={styles.warningBox}>
-                            <Ionicons style={styles.warningIcon} name="warning-outline" size={26} color="white" />
-                            <View style={styles.warningTextBox}>
-                                <Text style={styles.warningTextTitle}>Warning Title</Text>
-                                <Text style={styles.warningText}>Warning Text....hmmm Warning!!</Text>
+                    { warning ?
+                        <View style={styles.warning}>
+                            <View style={styles.warningBox}>
+                                <Ionicons style={styles.warningIcon} name="warning-outline" size={26} color="white" />
+                                <View style={styles.warningTextBox}>
+                                    <Text style={styles.warningTextTitle}>Warning Title</Text>
+                                    <Text style={styles.warningText}>Warning Text....hmmm Warning!!</Text>
+                                </View>
                             </View>
-                        </View>
-                    </View>
+                        </View> : null
+                    }
                     <View style={styles.heartData}>
                         <Text style={styles.heartTitle}>Heart Rhythm</Text>
                         <LineChart
@@ -101,10 +105,12 @@ function home({navigate}) {
                         </View>
                         <View style={styles.temperature}>
                             <Text style={styles.heartTitle}>Body Temperature</Text>
+                            <View style={{flex:1, justifyContent:'center', alignItems: 'center'}}>
                             <Text style={styles.mainInfo}>32° C</Text>
                             <Text style={styles.sideText}>Current</Text>
                             <Text style={styles.mainInfo}>Normal</Text>
                             <Text style={styles.sideText}>Status</Text>
+                            </View>
                         </View>
                     </View>
                 </View>
