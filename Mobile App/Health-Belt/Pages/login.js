@@ -13,38 +13,47 @@ function login({navigation}) {
     const [password, onChangePassword] = React.useState('');
     const [success, onChangeSuccess] = React.useState(true);
 
-    /*
-
-        get:
-            url/login?uname=""
-
-            {
-                pass: hash-password,
-            }
-
-        if success:
-        
-        get:
-            url/getToken?uname=""
-
-            {
-                token: token,
-            }
-    */
-
     async function login() {
-        /*let response = await fetch('url/login?uname='+userName); 
-        let json = await response.json;
-        let success = json.pass ? bcrypt.compareSync(password,json.pass) : false;
-        onChangeSuccess(success);
-        if(success) {
+        const token = "";
+        fetch('http://www.healthbelt.tech/login/', {
+            method: 'GET',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type' : 'application/json'
+            },
+            body: JSON.stringify({
+                HID: HID,
+                username: userName,
+                email: email,
+                hash: bcrypt.hash(password,salt)
+            })
+        })
+        .then((response) => response.json)
+        .then((json) => {
+            let success = json.error ? false : bcrypt.compareSync(password,json.hash);
+            onChangeSuccess(success);
+            if(success) {
+                fetch('http://www.healthbelt.tech/getToken/', {
+                    method: 'GET',
+                    headers: {
+                        Accept: 'application/json',
+                        'Content-Type' : 'application/json'
+                    },
+                    body: JSON.stringify({
+                        username: userName
+                    })
+                })
+                .then((response)=>response.json)
+                .then((json)=>{
+                    token = json.token;
+                })
+            }
+        })
+        if(success){
             await AsyncStorage.setItem('@UNAME', userName);
-            response = await fetch('url/getToken')
-            json = await response.json;
             await AsyncStorage.setItem('@TOKEN', json.token);
             navigation.navigate('mainApp',{screen: 'Home'});
-        }*/
-        navigation.navigate('mainApp',{screen: 'Home'});
+        }
     }
 
     return (

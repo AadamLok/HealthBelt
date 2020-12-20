@@ -10,43 +10,40 @@ var salt = bcrypt.genSaltSync(10);
 function register({navigation}) {
 
     const [HID, onChangeHID] = React.useState('');
-    const [mobileNo, onChangeMobileNo] = React.useState('');
+    const [email, onChangeEmail] = React.useState('');
     const [userName, onChangeUserName] = React.useState('');
     const [password, onChangePassword] = React.useState('');
     const [success, onChangeSuccess] = React.useState(true);
 
-    /*
-
-        get:
-            url/login?uname=""
-
-            {
-                pass: hash-password,
-            }
-
-        if success:
-        
-        get:
-            url/getToken?uname=""
-
-            {
-                token: token,
-            }
-    */
-
     async function register() {
-        /*let response = await fetch('url/login?uname='+userName); 
-        let json = await response.json;
-        let success = json.pass ? bcrypt.compareSync(password,json.pass) : false;
-        onChangeSuccess(success);
-        if(success) {
+        token = "";
+        fetch('http://www.healthbelt.tech/register/', {
+            method: 'GET',
+            headers: {
+                Accept: 'application/json',
+                'Content-Type' : 'application/json'
+            },
+            body: JSON.stringify({
+                HID: HID,
+                username: userName,
+                email: email,
+                hash: bcrypt.hash(password,salt)
+            })
+        })
+        .then((response) => response.json())
+        .then((json) => {
+            if(json.error) {
+                onChangeSuccess(false);
+            } else {
+                onChangeSuccess(true);
+                token = json.token;
+            }
+        })
+        if(success){
             await AsyncStorage.setItem('@UNAME', userName);
-            response = await fetch('url/getToken')
-            json = await response.json;
             await AsyncStorage.setItem('@TOKEN', json.token);
             navigation.navigate('mainApp',{screen: 'profile'});
-        }*/
-        navigation.navigate('mainApp',{screen: 'Profile'})
+        }
     }
 
     return (
@@ -56,13 +53,13 @@ function register({navigation}) {
                 <Text style={styles.title}>Register</Text>
                 <TextInput 
                     style={styles.hardwareID} 
-                    onChangeText={text => onChangeUserName(text)} value={HID}
+                    onChangeText={text => onChangeHID(text)} value={HID}
                     placeholder={"Hardware ID"}
                 />
                 <TextInput 
                     style={styles.mobileNo} 
-                    onChangeText={text => onChangeUserName(text)} value={mobileNo}
-                    placeholder={"Mobile No"}
+                    onChangeText={text => onChangeEmail(text)} value={email}
+                    placeholder={"Email"}
                 />
                 <TextInput 
                     style={styles.userName} 
