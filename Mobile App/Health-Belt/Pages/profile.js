@@ -1,5 +1,7 @@
 import * as React from 'react';
-import { View, Text, StyleSheet, ImageBackground, Dimensions, StatusBar, TextInput, TouchableNativeFeedback} from 'react-native';
+import { View, Text, StyleSheet, ImageBackground, FlatList, Dimensions, StatusBar, TextInput, TouchableNativeFeedback} from 'react-native';
+import { MaterialIcons } from '@expo/vector-icons';
+
 
 const windowWidth = Dimensions.get('window').width;
 
@@ -7,8 +9,30 @@ function profile({navigate}) {
 
     const [email, onChangeEmail] = React.useState('');
 
+    const emergencyContacts = [
+        {
+            id:1,
+            email:'aadamlok@gmail.com'
+        },
+        {
+            id:2,
+            email:'alokhandwala@umass.edu'
+        },
+    ]
+    
     function logout() {
 
+    }
+
+    const contact = ({item}) => {
+        return(
+            <View style={styles.contact}>
+                <Text style={styles.contactEmail}>{item.email}</Text>
+                <TouchableNativeFeedback style={styles.del}>
+                    <MaterialIcons name="delete-forever" size={24} color="rgba(255,0,0,0.5)" />
+                </TouchableNativeFeedback>
+            </View>
+        )
     }
 
     return (
@@ -45,22 +69,28 @@ function profile({navigate}) {
                         </View>
                     </View>
                     <View style={styles.emergencyBlock}>
-                        <View>
+                        <View style={styles.emergencyAdd}>
                             <View style={{flex:2}}>
                                 <TextInput
                                     style={styles.emailAdd} 
                                     onChangeText={text => onChangeEmail(text)} 
                                     value={email}
-                                    placeholder={"New Email Address"} 
+                                    placeholder={"Emergency Contact"} 
+
                                 />
                             </View>
                             <View style={{flex:1}}>
                                 <TouchableNativeFeedback onPress={() => logout()}>
-                                    <Text style={styles.emailButton}>Change</Text>
+                                    <Text style={styles.emailButton}>Add</Text>
                                 </TouchableNativeFeedback>
                             </View>
                         </View>
-                        <Text>Emergency Contacts</Text>
+                        <Text style={styles.emergencyText}>Emergency Contacts</Text>
+                        <FlatList
+                            data={emergencyContacts}
+                            renderItem={contact}
+                            keyExtractor={(item) => item.id}
+                        />
                     </View>
                 </View>
             </View>
@@ -178,8 +208,38 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(255,232,220,0.7)',
         borderRadius: 10,
         padding:10,
+    },
+
+    emergencyAdd: {
+        alignItems: 'center',
+        justifyContent: 'center',
         flexDirection:'row',
     },
+
+    emergencyText: {
+        fontSize: 12,
+        textAlign: 'center',
+        paddingVertical:4,
+    },
+
+    contact: {
+        flexDirection:'row',
+        margin:5,
+        backgroundColor: 'rgba(167,159,202,0.5)',
+        paddingLeft: 10,
+        paddingRight: 5,
+        borderRadius: 10,
+        paddingVertical: 5,
+    },
+
+    contactEmail: {
+        flex:1,
+        fontWeight: "600",
+    },
+
+    del: {
+        alignSelf:'flex-end',
+    }
 
 })
 
