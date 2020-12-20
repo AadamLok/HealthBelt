@@ -4,9 +4,6 @@ from flask_mysqldb import MySQL
 
 app = Flask(__name__)
 
-if __name__ == "__main__":
-    app.run()
-
 
 
 @app.route('/')
@@ -37,4 +34,5 @@ def create_app(test_config=None):
 
     return app
 
-    
+if __name__ == "__main__":
+    app.run()
