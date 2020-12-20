@@ -111,7 +111,7 @@ const styles = StyleSheet.create({
 
     userName: {
         width: '90%',
-        backgroundColor: 'rgba(65,69,103,0.5)',
+        backgroundColor: 'rgba(65,69,103,0.3)',
         alignSelf: 'center',
         height: 40,
         paddingLeft: 10,
@@ -122,7 +122,7 @@ const styles = StyleSheet.create({
     password: {
         marginTop: 10,
         width: '90%',
-        backgroundColor: 'rgba(65,69,103,0.5)',
+        backgroundColor: 'rgba(65,69,103,0.3)',
         alignSelf: 'center',
         height: 40,
         paddingLeft: 10,
