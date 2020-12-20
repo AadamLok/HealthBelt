@@ -7,9 +7,9 @@ def email_message(subject, content, toRecipient):
     msg['subject'] = subject
     msg['toRecipient'] = toRecipient
 
-    user = "nityaka01@gmail.com"
+    user = "naryasomayaj@umass.edu"
     msg['from'] = user
-    password = "hola"
+    password = "cfuwovncdtqinrtp"
 
     server = smtplib.SMTP("smtp.gmail.com",587)
     server.starttls()
@@ -20,4 +20,4 @@ def email_message(subject, content, toRecipient):
     server.quit()
 
 if __name__ == "__main__":
-    email_message("Hello","Emergency",'19788317405@tmomail.net')
+    email_message("Hello","Emergency","nityaka01@gmail.com")
